@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(targets = "net.minecraft.world.level.biome.Biome$TemperatureModifier$2")
-public abstract class TemperatureModifierMixin {
+public abstract class SnowStartModifierMixin {
     @ModifyVariable(
         method = "modifyTemperature",
         at = @At("HEAD"),
@@ -17,4 +17,6 @@ public abstract class TemperatureModifierMixin {
     public BlockPos tectonic$adjustSnowStart(BlockPos pos) {
         return pos.above(ConfigHandler.getState().general.snowStartOffset);
     }
+
+
 }

@@ -9,7 +9,7 @@ import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
-public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunction shiftZ, double scale, double multiplier, double offset, boolean smootherScaling) implements DensityFunction {
+public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunction shiftZ, double scale, double multiplier, double offset, boolean smootherScaling, boolean isTemperature) implements DensityFunction {
     public static MapCodec<ConfigNoise> DATA_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Codec.STRING.fieldOf("key").forGetter(df -> ""),
         NoiseHolder.CODEC.fieldOf("noise").forGetter(ConfigNoise::noise),
@@ -21,7 +21,13 @@ public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunc
 
     public static ConfigNoise create(String key, NoiseHolder noise, DensityFunction shiftX, DensityFunction shiftZ) {
         NoiseState state = ConfigHandler.getState().getNoiseState(key);
-        return new ConfigNoise(noise, shiftX, shiftZ, state.scale, state.multiplier, state.offset, state.smootherScaling);
+        if(key.equalsIgnoreCase("temperature")){
+            return new ConfigNoise(noise, shiftX, shiftZ, state.scale, state.multiplier, state.offset, state.smootherScaling,true);
+        }
+        else{
+            return new ConfigNoise(noise, shiftX, shiftZ, state.scale, state.multiplier, state.offset, state.smootherScaling,false);
+        }
+
     }
 
     @Override
@@ -35,7 +41,43 @@ public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunc
             x = context.blockX() * scale + shiftX.compute(context);
             z = context.blockZ() * scale + shiftZ.compute(context);
         }
-        return noise.getValue(x, 0, z) * multiplier + offset;
+        return noise.getValue(x, 0, z) * multiplier + offset + getLatTempOffset(context.blockZ());
+    }
+
+    //todo move to config
+    private static int cutoff = 16000;
+    private static double maxDelta = 1.0f; //the maximum amount of temperature change to be applied at north/south cutoffs.
+
+    private double getLatTempOffset(double lat){//lat = z value of block coordinate
+        if(!isTemperature){
+            return 0;
+        }
+        //negative z -> more north
+        //positive z more south
+        double factor = oneMinusGausslike(lat/cutoff); //gets the distribution normalized to the cutoff value
+        double offset = factor * maxDelta;
+        if(lat < 0){
+            return -offset;
+        }
+        else{
+            return offset;
+        }
+    }
+
+    /**
+     * Returns a value between 0 and 1 in a distribution opposite of gaussian-like
+     * f(0) ~ 0
+     * f(0.25) ~ 0.117
+     * f(0.5) ~ 0.39
+     * f(0.75) ~.67
+     * f(1) ~ ~.86
+     * even function
+     * 1 - guassian-like distribution
+     * @return float
+     */
+    private double oneMinusGausslike(double x){
+        final double k=2;//adjustable
+        return (1.0d - (Math.exp(-0.5d*Math.pow(k*x,2))));
     }
 
     @Override
@@ -46,7 +88,10 @@ public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunc
     @Override
     public DensityFunction mapAll(Visitor visitor) {
         if (this.smootherScaling) {
-            return new ConfigNoise(visitor.visitNoise(noise), shiftX.mapAll(visitor), shiftZ.mapAll(visitor), scale, multiplier, offset, smootherScaling);
+            return new ConfigNoise(visitor.visitNoise(noise), shiftX.mapAll(visitor), shiftZ.mapAll(visitor), scale, multiplier, offset, smootherScaling,isTemperature);
+        }
+        else if(this.isTemperature){
+            return new ConfigNoise(visitor.visitNoise(noise), shiftX.mapAll(visitor), shiftZ.mapAll(visitor), scale, multiplier, offset, smootherScaling,isTemperature);
         }
         return DensityFunctions.add(
             DensityFunctions.mul(

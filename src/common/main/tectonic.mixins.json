@@ -20,6 +20,6 @@
     "NoiseSettingsAccessor",
     "NoisesMixin",
     "StructurePieceMixin",
-    "TemperatureModifierMixin"
+    "SnowStartModifierMixin"
   ]
 }
