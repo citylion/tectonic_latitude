@@ -41,16 +41,21 @@ public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunc
             x = context.blockX() * scale + shiftX.compute(context);
             z = context.blockZ() * scale + shiftZ.compute(context);
         }
-        return noise.getValue(x, 0, z) * multiplier + offset + getLatTempOffset(context.blockZ());
+        return noise.getValue(x, 0, z) * multiplier + offset + getLatTempOffset(context.blockX(), context.blockZ());
     }
 
     //todo move to config
     private static int cutoff = 16000;
     private static double maxDelta = 1.0f; //the maximum amount of temperature change to be applied at north/south cutoffs.
+    private static boolean subtractLon = true; //meaning that going farther west/east will limit this north/south forced temperature effect
+    private static double subtractionTaperFactor = 0.5f;
 
-    private double getLatTempOffset(double lat){//lat = z value of block coordinate
+    private double getLatTempOffset(double lon, double lat){//lat = z value of block coordinate
         if(!isTemperature){
             return 0;
+        }
+        if(subtractLon){
+            lat = Math.max(0,lat-lon*subtractionTaperFactor);
         }
         //negative z -> more north
         //positive z more south
