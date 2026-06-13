@@ -78,6 +78,16 @@
   "config.tectonic.option.vegetation_offset": "Vegetation Offset: %s",
   "config.tectonic.option.vegetation_offset.tooltip": "Offsets the average value of the vegetation noise. Higher values favor more densely vegetated biomes, lower values favor more sparsely vegetated biomes.",
 
+  "config.tectonic.category.latitude_temperature": "Latitude Temperature",
+  "config.tectonic.option.cutoff": "Cutoff: %s",
+  "config.tectonic.option.cutoff.tooltip": "The distance north/south (in blocks) over which the forced temperature shift ramps up to its maximum. Larger values = more gradual change.",
+  "config.tectonic.option.max_delta": "Max Delta: %s",
+  "config.tectonic.option.max_delta.tooltip": "The maximum amount of temperature change applied at the far north/south extremes.",
+  "config.tectonic.option.subtract_lon": "Subtract Longitude",
+  "config.tectonic.option.subtract_lon.tooltip": "When enabled, travelling farther west/east reduces the north/south forced temperature effect.",
+  "config.tectonic.option.subtraction_taper_factor": "Subtraction Taper Factor: %s",
+  "config.tectonic.option.subtraction_taper_factor.tooltip": "How strongly west/east distance reduces the north/south temperature effect. Higher values = faster taper.",
+
   "config.tectonic.category.caves": "Caves",
   "config.tectonic.option.depth_cutoff_start": "Depth Cutoff Start: %s",
   "config.tectonic.option.depth_cutoff_start.tooltip": "The depth noise value that caves stop generating. 0.1 cuts off caves ~12 blocks below the surface, 0.5 cuts off caves ~64 blocks below the surface.",

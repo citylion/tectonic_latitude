@@ -14,6 +14,7 @@ import static dev.worldgen.tectonic.config.state.ConfigState.General.*;
 import static dev.worldgen.tectonic.config.state.ConfigState.GlobalTerrain.*;
 import static dev.worldgen.tectonic.config.state.ConfigState.Islands.*;
 import static dev.worldgen.tectonic.config.state.ConfigState.Oceans.*;
+import static dev.worldgen.tectonic.config.state.ConfigState.LatitudeTemperature.*;
 import static dev.worldgen.tectonic.config.state.ConfigState.Experimental.*;
 
 public interface ConfigListBuilder {
@@ -70,6 +71,12 @@ public interface ConfigListBuilder {
         this.addCategory(DisplayMode.ALL, "biomes", font);
         this.addNoise(DisplayMode.ALL, "temperature", state.biomes.temperature, NoiseState.DEFAULT);
         this.addNoise(DisplayMode.ALL, "vegetation", state.biomes.vegetation, NoiseState.DEFAULT);
+
+        this.addCategory(DisplayMode.ALL, "latitude_temperature", font);
+        this.addInteger(DisplayMode.ALL, "cutoff", 0, 64000, 500, value -> state.latitudeTemperature.cutoff = value, state.latitudeTemperature.cutoff, CUTOFF);
+        this.addDouble(DisplayMode.ALL, "max_delta", 0, 2, 0.05, value -> state.latitudeTemperature.maxDelta = value, state.latitudeTemperature.maxDelta, MAX_DELTA);
+        this.addBoolean(DisplayMode.ALL, "subtract_lon", bool -> state.latitudeTemperature.subtractLon = bool, state.latitudeTemperature.subtractLon, SUBTRACT_LON);
+        this.addDouble(DisplayMode.ALL, "subtraction_taper_factor", 0, 2, 0.05, value -> state.latitudeTemperature.subtractionTaperFactor = value, state.latitudeTemperature.subtractionTaperFactor, SUBTRACTION_TAPER_FACTOR);
 
         this.addCategory(DisplayMode.ALL, "caves", font);
         this.addDouble(DisplayMode.ALL, "depth_cutoff_start", -0.1, 1, 0.1, value -> state.caves.depthCutoffStart = value, state.caves.depthCutoffStart, DEPTH_CUTOFF_START);
