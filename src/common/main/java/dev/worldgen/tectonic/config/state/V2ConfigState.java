@@ -64,6 +64,7 @@ public class V2ConfigState {
                 NoiseState.DEFAULT
             ),
             ConfigState.Caves.DEFAULT,
+            ConfigState.LatitudeTemperature.DEFAULT,
             ConfigState.Experimental.DEFAULT
         );
     }

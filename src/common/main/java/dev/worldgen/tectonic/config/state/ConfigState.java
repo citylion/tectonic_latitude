@@ -18,6 +18,7 @@ public class ConfigState {
         Oceans.CODEC.fieldOf("oceans").orElse(Oceans.DEFAULT).forGetter(state -> state.oceans),
         Biomes.CODEC.fieldOf("biomes").orElse(Biomes.DEFAULT).forGetter(state -> state.biomes),
         Caves.CODEC.fieldOf("caves").orElse(Caves.DEFAULT).forGetter(state -> state.caves),
+        LatitudeTemperature.CODEC.fieldOf("latitude_temperature").orElse(LatitudeTemperature.DEFAULT).forGetter(state -> state.latitudeTemperature),
         Experimental.CODEC.fieldOf("experimental").orElse(Experimental.DEFAULT).forGetter(state -> state.experimental)
     ).apply(instance, ConfigState::create));
     public static final Codec<ConfigState> CODEC = Codec.withAlternative(BASE_CODEC, V2ConfigState.CODEC, V2ConfigState::upgrade);
@@ -29,13 +30,14 @@ public class ConfigState {
     public Oceans oceans;
     public Biomes biomes;
     public Caves caves;
+    public LatitudeTemperature latitudeTemperature;
     public Experimental experimental;
-    
-    public static ConfigState create(String ignored, int minorVersion, General general, GlobalTerrain globalTerrain, Continents continents, Islands islands, Oceans oceans, Biomes biomes, Caves caves, Experimental experimental) {
-        return new ConfigState(minorVersion, general, globalTerrain, continents, islands, oceans, biomes, caves, experimental);
+
+    public static ConfigState create(String ignored, int minorVersion, General general, GlobalTerrain globalTerrain, Continents continents, Islands islands, Oceans oceans, Biomes biomes, Caves caves, LatitudeTemperature latitudeTemperature, Experimental experimental) {
+        return new ConfigState(minorVersion, general, globalTerrain, continents, islands, oceans, biomes, caves, latitudeTemperature, experimental);
     }
 
-    public ConfigState(int minorVersion, General general, GlobalTerrain globalTerrain, Continents continents, Islands islands, Oceans oceans, Biomes biomes, Caves caves, Experimental experimental) {
+    public ConfigState(int minorVersion, General general, GlobalTerrain globalTerrain, Continents continents, Islands islands, Oceans oceans, Biomes biomes, Caves caves, LatitudeTemperature latitudeTemperature, Experimental experimental) {
         this.general = general;
         this.globalTerrain = globalTerrain;
         this.continents = continents;
@@ -43,6 +45,7 @@ public class ConfigState {
         this.oceans = oceans;
         this.biomes = biomes;
         this.caves = caves;
+        this.latitudeTemperature = latitudeTemperature;
         this.experimental = experimental;
 
         if (minorVersion < 1 && this.globalTerrain.ultrasmooth) {
@@ -317,6 +320,33 @@ public class ConfigState {
         }
     }
     
+    public static class LatitudeTemperature {
+        public static final int CUTOFF = 16000;
+        public static final double MAX_DELTA = 1.0;
+        public static final boolean SUBTRACT_LON = true;
+        public static final double SUBTRACTION_TAPER_FACTOR = 0.5;
+
+        public static final LatitudeTemperature DEFAULT = new LatitudeTemperature(CUTOFF, MAX_DELTA, SUBTRACT_LON, SUBTRACTION_TAPER_FACTOR);
+        public static final Codec<LatitudeTemperature> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("cutoff").orElse(CUTOFF).forGetter(temp -> temp.cutoff),
+            Codec.DOUBLE.fieldOf("max_delta").orElse(MAX_DELTA).forGetter(temp -> temp.maxDelta),
+            Codec.BOOL.fieldOf("subtract_lon").orElse(SUBTRACT_LON).forGetter(temp -> temp.subtractLon),
+            Codec.DOUBLE.fieldOf("subtraction_taper_factor").orElse(SUBTRACTION_TAPER_FACTOR).forGetter(temp -> temp.subtractionTaperFactor)
+        ).apply(instance, LatitudeTemperature::new));
+
+        public int cutoff;
+        public double maxDelta;
+        public boolean subtractLon;
+        public double subtractionTaperFactor;
+
+        public LatitudeTemperature(int cutoff, double maxDelta, boolean subtractLon, double subtractionTaperFactor) {
+            this.cutoff = cutoff;
+            this.maxDelta = maxDelta;
+            this.subtractLon = subtractLon;
+            this.subtractionTaperFactor = subtractionTaperFactor;
+        }
+    }
+
     public static class Experimental {
         public static final boolean ALTERNATE_EROSION_SCALING = false;
         public static final boolean ALTERNATE_CONTINENTS_SCALING = false;

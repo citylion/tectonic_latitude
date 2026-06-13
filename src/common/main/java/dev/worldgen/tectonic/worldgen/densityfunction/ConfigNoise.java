@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.worldgen.tectonic.config.ConfigHandler;
+import dev.worldgen.tectonic.config.state.ConfigState;
 import dev.worldgen.tectonic.config.state.object.NoiseState;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -44,23 +45,30 @@ public record ConfigNoise(NoiseHolder noise, DensityFunction shiftX, DensityFunc
         return noise.getValue(x, 0, z) * multiplier + offset + getLatTempOffset(context.blockX(), context.blockZ());
     }
 
-    //todo move to config
-    private static int cutoff = 16000;
-    private static double maxDelta = 1.0f; //the maximum amount of temperature change to be applied at north/south cutoffs.
-    private static boolean subtractLon = true; //meaning that going farther west/east will limit this north/south forced temperature effect
-    private static double subtractionTaperFactor = 0.5f;
-
     private double getLatTempOffset(double lon, double lat){//lat = z value of block coordinate
         if(!isTemperature){
             return 0;
         }
+        ConfigState.LatitudeTemperature config = ConfigHandler.getState().latitudeTemperature;
+        int cutoff = config.cutoff;
+        double maxDelta = config.maxDelta; //the maximum amount of temperature change to be applied at north/south cutoffs.
+        boolean subtractLon = config.subtractLon; //meaning that going farther west/east will limit this north/south forced temperature effect
+        double subtractionTaperFactor = config.subtractionTaperFactor;
         if(subtractLon){
-            lat = Math.max(0,lat-lon*subtractionTaperFactor);
+            if(lat > 0){
+                lat = lat - Math.abs(lon) * subtractionTaperFactor;
+                lat = Math.max(0, lat - Math.abs(lon) * subtractionTaperFactor);
+            }
+            else if(lat < 0){
+                lat = lat + Math.abs(lon) * subtractionTaperFactor;
+                lat = Math.min(0, lat + Math.abs(lon) * subtractionTaperFactor);
+            }
         }
         //negative z -> more north
         //positive z more south
         double factor = oneMinusGausslike(lat/cutoff); //gets the distribution normalized to the cutoff value
         double offset = factor * maxDelta;
+
         if(lat < 0){
             return -offset;
         }

@@ -27,6 +27,7 @@ public class ConfigHandler {
         ConfigState.Oceans.DEFAULT,
         ConfigState.Biomes.DEFAULT,
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         ConfigState.Experimental.DEFAULT
     );
     private static Path PATH;

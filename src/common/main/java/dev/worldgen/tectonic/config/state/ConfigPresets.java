@@ -14,6 +14,7 @@ public interface ConfigPresets {
         ConfigState.Oceans.DEFAULT,
         ConfigState.Biomes.DEFAULT,
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         ConfigState.Experimental.DEFAULT
     );
 
@@ -29,6 +30,7 @@ public interface ConfigPresets {
             new NoiseState(0.06, 1.1, 0)
         ),
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         ConfigState.Experimental.DEFAULT
     );
 
@@ -44,6 +46,7 @@ public interface ConfigPresets {
             NoiseState.DEFAULT
         ),
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         ConfigState.Experimental.DEFAULT
     );
 
@@ -76,6 +79,7 @@ public interface ConfigPresets {
             new NoiseState(0.15, 0.1, -0.1)
         ),
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         ConfigState.Experimental.DEFAULT
     );
     
@@ -111,6 +115,7 @@ public interface ConfigPresets {
             new NoiseState(0.1, 1.1, -0.2)
         ),
         ConfigState.Caves.DEFAULT,
+        ConfigState.LatitudeTemperature.DEFAULT,
         new ConfigState.Experimental(true, true)
     );
 
